@@ -12,12 +12,12 @@ public class ProjectileBaseThomos : MonoBehaviour
 
     public UnityAction OnShoot;
 
-    public void Shoot(WeaponController weaponController)
+    public void Shoot(WeaponBase weaponBase)
     {
-        Owner = weaponController.Owner;
+        Owner = weaponBase.Owner;
         InitialPosition = transform.position;
         InitialDirection = transform.forward;
-        InheritedMuzzleVelocity = weaponController.MuzzleWorldVelocity;
+        InheritedMuzzleVelocity = weaponBase.MuzzleWorldVelocity;
         OnShoot?.Invoke();
     }
 }

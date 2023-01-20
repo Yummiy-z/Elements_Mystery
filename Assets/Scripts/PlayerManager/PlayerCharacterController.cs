@@ -3,9 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerCharacterController : MonoBehaviour
+
+public class PlayerCharacterController : Singleton<PlayerCharacterController>
 {
-    public static PlayerCharacterController Instance;
+    /// <summary>
+    /// 继承工具类，单例模式，一个玩家只需要一个玩家角色控制器脚本
+    /// </summary>
     [Header("General & Movement")] public Camera playerCamera;
     [Tooltip("模拟重力")] public float gravityDownForce = 20f;
     public float walkSpeed = 5f;
@@ -48,10 +51,7 @@ public class PlayerCharacterController : MonoBehaviour
 
 
     //测试语句，复制使用：Debug.Log("checkGroundPoint.position:" + checkGroundPoint.position);
-    private void Awake()
-    {
-        Instance = this;
-    }
+    
 
     private void Start()
     {
@@ -76,6 +76,7 @@ public class PlayerCharacterController : MonoBehaviour
     {
         _characterController.height = _targetCharacterHeight;
         //_characterController.center = Vector3.up * _characterController.height * 0.5f;
+        //todo:相机位置可能需要调整
         playerCamera.transform.localPosition = Vector3.up *
                                                (_characterController.height -
                                                 _characterController.transform.position.y) * cameraHeightRatio;
