@@ -20,7 +20,7 @@ public class PlayerWeaponManager : Singleton<PlayerWeaponManager>
 
     //当前的手持武器，只有一个
     private WeaponBase _activeWeapon;
-    private const float _switchWeaponCoolDown = 0.5f;
+    private const float _switchWeaponCoolDown = 1f;
     public float _lastSwitchWeaponTime;
 
     private PlayerInputHandler _inputHandler;
@@ -102,15 +102,40 @@ public class PlayerWeaponManager : Singleton<PlayerWeaponManager>
             WeaponBase weaponInstance = Instantiate(weaponPrefab, weaponParentSocket);
             weaponInstance.transform.localPosition = Vector3.zero;
             weaponInstance.transform.localRotation = Quaternion.identity;
-
             weaponInstance.Owner = gameObject;
             weaponInstance.SourcePrefab = weaponPrefab.gameObject;
             _weaponSlots[2] = weaponInstance;
-           
+            _weaponSlots[2].isWeaponActive = false;
+            _weaponSlots[2].HideWeapon();
+            return true;
+        }
+
+        if (_weaponSlots[0] == null)
+        {
+            WeaponBase weaponInstance = Instantiate(weaponPrefab, weaponParentSocket);
+            weaponInstance.transform.localPosition = Vector3.zero;
+            weaponInstance.transform.localRotation = Quaternion.identity;
+            weaponInstance.Owner = gameObject;
+            weaponInstance.SourcePrefab = weaponPrefab.gameObject;
+            _weaponSlots[0] = weaponInstance;
+            _weaponSlots[0].isWeaponActive = false;
+            _weaponSlots[0].HideWeapon();
+            return true;
+        }
+
+        if (_weaponSlots[1] == null)
+        {
+            WeaponBase weaponInstance = Instantiate(weaponPrefab, weaponParentSocket);
+            weaponInstance.transform.localPosition = Vector3.zero;
+            weaponInstance.transform.localRotation = Quaternion.identity;
+            weaponInstance.Owner = gameObject;
+            weaponInstance.SourcePrefab = weaponPrefab.gameObject;
+            _weaponSlots[1] = weaponInstance;
+            _weaponSlots[1].isWeaponActive = false;
+            _weaponSlots[1].HideWeapon();
             return true;
         }
 
         return false;
     }
 }
-
