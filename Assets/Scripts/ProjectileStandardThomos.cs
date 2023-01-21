@@ -43,7 +43,7 @@ public class ProjectileStandardThomos : MonoBehaviour
         Destroy(gameObject, maxLifeTime);
     }
 
-    //等同Onshoot
+    //等同On shoot
     private void StartShoot()
     {
         _lastRootPosition = root.position;
@@ -55,11 +55,9 @@ public class ProjectileStandardThomos : MonoBehaviour
             Transform weaponCameraTransform = playerWeaponManager.weaponCamera.transform;
 
             Vector3 cameraTomuzzle = _projectileBaseThomos.InitialPosition - weaponCameraTransform.position;
-            Debug.DrawRay(weaponCameraTransform.position, cameraTomuzzle, Color.yellow, 5);
+            
             _correctedVector3 = Vector3.ProjectOnPlane(-cameraTomuzzle, weaponCameraTransform.forward);
-            Debug.DrawRay(weaponCameraTransform.position, -cameraTomuzzle, Color.red, 5);
-            Debug.DrawRay(weaponCameraTransform.position, weaponCameraTransform.forward, Color.green, 5);
-            Debug.DrawRay(weaponCameraTransform.position, _correctedVector3, Color.magenta, 5);
+            
         }
     }
 
@@ -73,7 +71,7 @@ public class ProjectileStandardThomos : MonoBehaviour
         {
             //Has much correction vector left to be consumed for accuracy adjustment
             //还有很多校正向量需要用于精度调整 correction vector left 左校正向量
-            Vector3 _correctionVectorLeft = _correctedVector3 - _consumedCorrectionVector3;
+            Vector3 correctionVectorLeft = _correctedVector3 - _consumedCorrectionVector3;
             //每一帧移动的长度，在子弹产生第一帧就是速度，后面会多出一个向左偏移量，因为子弹的运动在偏移之前，所以第一帧的位移是没有偏移的
             float distanceThisFrame = (root.position - _lastRootPosition).magnitude;
             /*
@@ -92,7 +90,7 @@ public class ProjectileStandardThomos : MonoBehaviour
              */
             //Unity官方案例
             Vector3 correctionThisFrame = (distanceThisFrame / trajectoryCorrectionDistance) * _correctedVector3;
-            correctionThisFrame = Vector3.ClampMagnitude(correctionThisFrame, _correctionVectorLeft.magnitude);
+            correctionThisFrame = Vector3.ClampMagnitude(correctionThisFrame, correctionVectorLeft.magnitude);
             _consumedCorrectionVector3 += correctionThisFrame;
             if (Mathf.Abs(_consumedCorrectionVector3.sqrMagnitude - _correctedVector3.sqrMagnitude) < Mathf.Epsilon)
             {
@@ -107,13 +105,15 @@ public class ProjectileStandardThomos : MonoBehaviour
         transform.forward = _velocity.normalized;
 
         //Hit detection
-        RaycastHit closestHit = new RaycastHit();
-        closestHit.distance = Mathf.Infinity;
-        bool foundHit = false;
+        RaycastHit closestHit = new RaycastHit
+        {
+            distance = Mathf.Infinity
+        };
+        var foundHit = false;
 
         //SphereCastAll
         Vector3 displacementsSinceLastFrame = tip.position - _lastRootPosition;
-        ///Debug.Log("_lastRootPosition" +_lastRootPosition);
+        
         RaycastHit[] hits = Physics.SphereCastAll(_lastRootPosition, radius, displacementsSinceLastFrame.normalized,
             displacementsSinceLastFrame.magnitude, hittableLayers, QueryTriggerInteraction.Collide);
         foreach (RaycastHit hit in hits)

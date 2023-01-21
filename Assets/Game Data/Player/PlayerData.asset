@@ -22,3 +22,8 @@ MonoBehaviour:
   currentLargeBulletsNumber: 10
   maxSpecialBulletsNumber: 30
   currentSpecialBulletsNumber: 10
+  walkSpeed: 5
+  jumpHeight: 1.5
+  sprintDistance: 3
+  maxSprintNumbers: 1
+  sprintCoolDown: 5

@@ -81,5 +81,35 @@ public class PlayerBaseData : MonoBehaviour
         set { playerData.currentSpecialBulletsNumber = value; }
     }
 
+    public float WalkSpeed
+    {
+        get { return (playerData != null ? playerData.walkSpeed : 0); }
+        set { playerData.walkSpeed = value; }
+    }
+
+    public float JumpHeight
+    {
+        get { return (playerData != null ? playerData.jumpHeight : 0); }
+        set { playerData.jumpHeight = value; }
+    }
+
+    public float SprintDistance
+    {
+        get { return (playerData != null ? playerData.sprintDistance : 0); }
+        set { playerData.sprintDistance = value; }
+    }
+
+    public int MaxSprintNumbers
+    {
+        get { return playerData != null ? playerData.maxSprintNumbers : 0; }
+        set { playerData.maxSprintNumbers = value; }
+    }
+
+    public float SprintCoolDown
+    {
+        get { return playerData != null ? playerData.sprintCoolDown : 0; }
+        set { playerData.sprintCoolDown = value; }
+    }
+
     #endregion
 }

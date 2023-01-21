@@ -1,9 +1,7 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
-using Unity.VisualScripting.Dependencies.NCalc;
 
 
 public class WeaponBase : MonoBehaviour
@@ -84,16 +82,16 @@ public class WeaponBase : MonoBehaviour
     public ProjectileBaseThomos projectilePrefab;
 
     //射线命中碰撞体的弹孔，弹道产生的弹孔由子弹负责执行
-    public GameObject RayBulletHole;
+    public GameObject rayBulletHole;
 
     //射线命中碰撞体的闪光，弹道产生的闪光由子弹负责执行
-    public GameObject RayImpactVFX;
+    public GameObject rayImpactVFX;
 
     //射线命中碰撞体的闪光的产生偏移量，不会直接在碰撞体表面
-    public float RayImpactVFXSpawnOffset = 0.1f;
+    public float rayImpactVFXSpawnOffset = 0.1f;
 
     //射线命中碰撞体的弹孔和闪光存在时间
-    public float RayImpactVFXAndBulletHoleLifeTime = 5f;
+    public float rayImpactVFXAndBulletHoleLifeTime = 5f;
 
     //子弹百秒射击量/射速
     public float hundredSecondsShootNumber = 1000f;
@@ -175,6 +173,7 @@ public class WeaponBase : MonoBehaviour
                     {
                         TrajectoryShoot();
                     }
+
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -195,9 +194,11 @@ public class WeaponBase : MonoBehaviour
     {
         if (weaponShootCheckPoint != null)
         {
-            RaycastHit closeCheckHit = new RaycastHit();
-            //将新建的这个碰撞成员的距离设置为无限大，因此第一个碰撞成员的距离必定小于它
-            closeCheckHit.distance = Mathf.Infinity;
+            RaycastHit closeCheckHit = new RaycastHit
+            {
+                //将新建的这个碰撞成员的距离设置为无限大，因此第一个碰撞成员的距离必定小于它
+                distance = Mathf.Infinity
+            };
             //todo:射线碰撞检测层,最后场景的布置完成后需要处理,所有射线都要
             //射线检测收集所有碰撞体
             RaycastHit[] checkHit = Physics.RaycastAll(weaponShootCheckPoint.position, weaponShootCheckPoint.forward,
@@ -223,10 +224,6 @@ public class WeaponBase : MonoBehaviour
             {
                 crossHairTargetDistance = 100f;
             }
-
-            Debug.Log(" weaponShootCheckPoint.position:" + weaponShootCheckPoint.position);
-            Debug.Log("crossHairTargetDistance:" + crossHairTargetDistance);
-            Debug.DrawRay(weaponShootCheckPoint.position, weaponShootCheckPoint.forward, Color.cyan, 10);
         }
 
         return crossHairTargetDistance;
@@ -245,21 +242,24 @@ public class WeaponBase : MonoBehaviour
                 MuzzleFlashPlay();
 
                 //依旧使用数组来判断是否产生碰撞
-                RaycastHit closeShootHit = new RaycastHit();
-                closeShootHit.distance = Mathf.Infinity;
-                RaycastHit[] ShootHit = Physics.RaycastAll(weaponShootCheckPoint.position,
+                RaycastHit closeShootHit = new RaycastHit
+                {
+                    distance = Mathf.Infinity
+                };
+                RaycastHit[] shootHit = Physics.RaycastAll(weaponShootCheckPoint.position,
                     weaponShootCheckPoint.forward,
                     maxRaycastDistance, -1,
                     QueryTriggerInteraction.Ignore);
                 //在这个函数之前已经检测过一次，是否有碰撞体，所以这里不用判空，直接遍历所有成员信息
-                foreach (var shootHit in ShootHit)
+                foreach (var hit in shootHit)
                 {
                     //如果检测到的碰撞体信息的标签不为Player，且这个距离小于目前的最小碰撞成员的距离，就让这个成员变为最近的碰撞成员
-                    if (!shootHit.transform.CompareTag("Player") && shootHit.distance < closeShootHit.distance)
+                    if (!hit.transform.CompareTag("Player") && hit.distance < closeShootHit.distance)
                     {
-                        closeShootHit = shootHit;
+                        closeShootHit = hit;
                     }
                 }
+
                 OnRaySphereHit(closeShootHit.point, closeShootHit.normal);
                 break;
             }
@@ -276,15 +276,15 @@ public class WeaponBase : MonoBehaviour
     /// <param name="normal"></param>
     private void OnRaySphereHit(Vector3 point, Vector3 normal)
     {
-        if (RayImpactVFX != null && RayBulletHole != null)
+        if (rayImpactVFX != null && rayBulletHole != null)
         {
-            GameObject bulletHoleInstance = Instantiate(RayBulletHole, point, Quaternion.LookRotation(normal));
-            GameObject impactVFXInstance = Instantiate(RayImpactVFX, point + normal * RayImpactVFXSpawnOffset,
+            GameObject bulletHoleInstance = Instantiate(rayBulletHole, point, Quaternion.LookRotation(normal));
+            GameObject impactVFXInstance = Instantiate(rayImpactVFX, point + normal * rayImpactVFXSpawnOffset,
                 Quaternion.LookRotation(normal));
-            if (RayImpactVFXAndBulletHoleLifeTime > 0)
+            if (rayImpactVFXAndBulletHoleLifeTime > 0)
             {
-                Destroy(bulletHoleInstance, RayImpactVFXAndBulletHoleLifeTime);
-                Destroy(impactVFXInstance, RayImpactVFXAndBulletHoleLifeTime);
+                Destroy(bulletHoleInstance, rayImpactVFXAndBulletHoleLifeTime);
+                Destroy(impactVFXInstance, rayImpactVFXAndBulletHoleLifeTime);
             }
         }
 
@@ -352,8 +352,8 @@ public class WeaponBase : MonoBehaviour
         for (int i = 0; i < 3; i++)
         {
             MuzzleFlashPlay();
-            RaycastHit hit = new RaycastHit();
-            Physics.SphereCast(weaponShootCheckPoint.position, rayProjectileRadius, Vector3.forward, out hit,
+
+            Physics.SphereCast(weaponShootCheckPoint.position, rayProjectileRadius, Vector3.forward, out var hit,
                 maxRaycastDistance, -1,
                 QueryTriggerInteraction.Ignore);
             OnRaySphereHit(hit.point, hit.normal);
@@ -377,7 +377,7 @@ public class WeaponBase : MonoBehaviour
     }
 
     //由于闪光使用较多，且闪光的参数不必经常修改，枪火闪光的逻辑过程
-    public void MuzzleFlashPlay()
+    private void MuzzleFlashPlay()
     {
         if (muzzleFlashPrefab != null)
         {

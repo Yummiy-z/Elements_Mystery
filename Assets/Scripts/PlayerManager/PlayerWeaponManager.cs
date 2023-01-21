@@ -1,8 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
+
 
 public class PlayerWeaponManager : Singleton<PlayerWeaponManager>
 {
@@ -20,8 +19,8 @@ public class PlayerWeaponManager : Singleton<PlayerWeaponManager>
 
     //当前的手持武器，只有一个
     private WeaponBase _activeWeapon;
-    private const float _switchWeaponCoolDown = 1f;
-    public float _lastSwitchWeaponTime;
+    private const float SwitchWeaponCoolDown = 0.5f;
+    private float _lastSwitchWeaponTime;
 
     private PlayerInputHandler _inputHandler;
 
@@ -68,7 +67,7 @@ public class PlayerWeaponManager : Singleton<PlayerWeaponManager>
                 //_animator.SetTrigger();
                 _activeWeapon.isWeaponActive = true;
                 _activeWeapon.ShowWeapon();
-                _lastSwitchWeaponTime = _switchWeaponCoolDown;
+                _lastSwitchWeaponTime = SwitchWeaponCoolDown;
             }
         }
     }
@@ -95,47 +94,47 @@ public class PlayerWeaponManager : Singleton<PlayerWeaponManager>
     }
 
 
-    private bool StartAddWeapon(WeaponBase weaponPrefab)
+    private void StartAddWeapon(WeaponBase weaponPrefab)
     {
         if (_weaponSlots[2] == null)
         {
             WeaponBase weaponInstance = Instantiate(weaponPrefab, weaponParentSocket);
-            weaponInstance.transform.localPosition = Vector3.zero;
-            weaponInstance.transform.localRotation = Quaternion.identity;
+            var transform1 = weaponInstance.transform;
+            transform1.localPosition = Vector3.zero;
+            transform1.localRotation = Quaternion.identity;
             weaponInstance.Owner = gameObject;
             weaponInstance.SourcePrefab = weaponPrefab.gameObject;
             _weaponSlots[2] = weaponInstance;
             _weaponSlots[2].isWeaponActive = false;
             _weaponSlots[2].HideWeapon();
-            return true;
+            return;
         }
 
         if (_weaponSlots[0] == null)
         {
             WeaponBase weaponInstance = Instantiate(weaponPrefab, weaponParentSocket);
-            weaponInstance.transform.localPosition = Vector3.zero;
-            weaponInstance.transform.localRotation = Quaternion.identity;
+            var transform1 = weaponInstance.transform;
+            transform1.localPosition = Vector3.zero;
+            transform1.localRotation = Quaternion.identity;
             weaponInstance.Owner = gameObject;
             weaponInstance.SourcePrefab = weaponPrefab.gameObject;
             _weaponSlots[0] = weaponInstance;
             _weaponSlots[0].isWeaponActive = false;
             _weaponSlots[0].HideWeapon();
-            return true;
+            return;
         }
 
         if (_weaponSlots[1] == null)
         {
             WeaponBase weaponInstance = Instantiate(weaponPrefab, weaponParentSocket);
-            weaponInstance.transform.localPosition = Vector3.zero;
-            weaponInstance.transform.localRotation = Quaternion.identity;
+            var transform1 = weaponInstance.transform;
+            transform1.localPosition = Vector3.zero;
+            transform1.localRotation = Quaternion.identity;
             weaponInstance.Owner = gameObject;
             weaponInstance.SourcePrefab = weaponPrefab.gameObject;
             _weaponSlots[1] = weaponInstance;
             _weaponSlots[1].isWeaponActive = false;
             _weaponSlots[1].HideWeapon();
-            return true;
         }
-
-        return false;
     }
 }
