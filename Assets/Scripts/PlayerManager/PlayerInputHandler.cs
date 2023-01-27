@@ -82,19 +82,16 @@ public class PlayerInputHandler : Singleton<PlayerInputHandler>
         //此功能好像不需要，就算肉眼同时按，电脑检测还是会有区别
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            Debug.Log("按键1");
             return 1;
         }
 
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            Debug.Log("按键2");
             return 2;
         }
 
         if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            Debug.Log("按键3");
             return 3;
         }
 

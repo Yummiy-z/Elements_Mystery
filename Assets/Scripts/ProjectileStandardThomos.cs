@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
+
 
 public class ProjectileStandardThomos : MonoBehaviour
 {
@@ -36,6 +38,9 @@ public class ProjectileStandardThomos : MonoBehaviour
 
     private Vector3 _consumedCorrectionVector3;
 
+    //偏移量
+    private Vector3 shootOffset;
+
     private void OnEnable()
     {
         _projectileBaseThomos = GetComponent<ProjectileBaseThomos>();
@@ -55,14 +60,15 @@ public class ProjectileStandardThomos : MonoBehaviour
             Transform weaponCameraTransform = playerWeaponManager.weaponCamera.transform;
 
             Vector3 cameraTomuzzle = _projectileBaseThomos.InitialPosition - weaponCameraTransform.position;
-            
+
             _correctedVector3 = Vector3.ProjectOnPlane(-cameraTomuzzle, weaponCameraTransform.forward);
-            
         }
     }
 
     private void Update()
     {
+        shootOffset = new Vector3(Random.Range(-0.1f, 0.1f), Random.Range(-0.1f, 0.1f), 0);
+        _correctedVector3 += shootOffset;
         //Move/子弹移动
         transform.position += _velocity * Time.deltaTime;
 
@@ -113,12 +119,13 @@ public class ProjectileStandardThomos : MonoBehaviour
 
         //SphereCastAll
         Vector3 displacementsSinceLastFrame = tip.position - _lastRootPosition;
-        
+
         RaycastHit[] hits = Physics.SphereCastAll(_lastRootPosition, radius, displacementsSinceLastFrame.normalized,
             displacementsSinceLastFrame.magnitude, hittableLayers, QueryTriggerInteraction.Collide);
         foreach (RaycastHit hit in hits)
         {
-            if (IsHitValid(hit) && hit.distance < closestHit.distance)
+            
+            if (IsHitValid(hit) && hit.distance < closestHit.distance && !hit.transform.CompareTag("AttackArea"))
             {
                 closestHit = hit;
                 foundHit = true;
@@ -133,7 +140,6 @@ public class ProjectileStandardThomos : MonoBehaviour
                 closestHit.normal = -transform.forward;
             }
 
-            Debug.Log("closestHit.point:" + closestHit.point);
             OnHit(closestHit.point, closestHit.normal);
         }
 
@@ -143,12 +149,7 @@ public class ProjectileStandardThomos : MonoBehaviour
 
     private bool IsHitValid(RaycastHit hit)
     {
-        if (hit.collider.isTrigger)
-        {
-            return false;
-        }
-
-        return true;
+        return !hit.collider.isTrigger;
     }
 
     private void OnHit(Vector3 point, Vector3 normal)
@@ -165,7 +166,6 @@ public class ProjectileStandardThomos : MonoBehaviour
             }
         }
 
-        print("Hit");
         Destroy(gameObject);
     }
 }

@@ -25,8 +25,14 @@ public class PlayerWeaponManager : Singleton<PlayerWeaponManager>
     private PlayerInputHandler _inputHandler;
 
     //武器切换的动画
-    private Animator _animator;
+    //private Animator _animator;
+    private bool _isSwitchWeapon;
 
+    // protected  override void Awake()
+    // {
+    //     base.Awake();
+    //     //_animator = GameObject.Find("WeaponParentPosition").GetComponent<Animator>();
+    // }
     private void Start()
     {
         //首先将我的默认武器列表中的武器放入武器格
@@ -58,15 +64,17 @@ public class PlayerWeaponManager : Singleton<PlayerWeaponManager>
             if (_activeWeapon != _weaponSlots[PlayerInputHandler.Instance.SwitchWeaponNumberInput() - 1] &&
                 _weaponSlots[PlayerInputHandler.Instance.SwitchWeaponNumberInput() - 1] != null)
             {
+                _isSwitchWeapon = true;
                 //todo:播放武器收起动画
-                //_animator.SetTrigger();
+                _activeWeapon.GetComponentInChildren<Animator>().SetTrigger("SwitchDown");
                 _activeWeapon.isWeaponActive = false;
                 _activeWeapon.HideWeapon();
                 _activeWeapon = _weaponSlots[PlayerInputHandler.Instance.SwitchWeaponNumberInput() - 1];
                 //todo：播放武器拿起动画
-                //_animator.SetTrigger();
                 _activeWeapon.isWeaponActive = true;
                 _activeWeapon.ShowWeapon();
+                _activeWeapon.GetComponentInChildren<Animator>().SetTrigger("SwitchUp");
+                _isSwitchWeapon = false;
                 _lastSwitchWeaponTime = SwitchWeaponCoolDown;
             }
         }
@@ -74,7 +82,7 @@ public class PlayerWeaponManager : Singleton<PlayerWeaponManager>
 
     private void WeaponShootCheck()
     {
-        if (_activeWeapon.isWeaponActive)
+        if (_activeWeapon.isWeaponActive && _isSwitchWeapon == false) 
         {
             switch (_activeWeapon.fireType)
             {
@@ -107,6 +115,7 @@ public class PlayerWeaponManager : Singleton<PlayerWeaponManager>
             _weaponSlots[2] = weaponInstance;
             _weaponSlots[2].isWeaponActive = false;
             _weaponSlots[2].HideWeapon();
+            //没有显示出来前，武器的位置不是射击位置
             return;
         }
 

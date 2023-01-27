@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "PlayerData",menuName = "Player/Data")]
+[CreateAssetMenu(fileName = "PlayerData",menuName = "CharacterBase/PlayerData")]
 public class PlayerBaseData_SO : ScriptableObject
 {
     //基础数据中的重力gravityDownForce

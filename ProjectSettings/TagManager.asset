@@ -8,6 +8,9 @@ TagManager:
   - Metal
   - ExplosiveBarrel
   - Target
+  - Tree
+  - Enemy
+  - AttackArea
   layers:
   - Default
   - TransparentFX
@@ -20,7 +23,7 @@ TagManager:
   - Ground
   - Wall
   - Projectile
-  - 
+  - Enemy
   - 
   - 
   - 

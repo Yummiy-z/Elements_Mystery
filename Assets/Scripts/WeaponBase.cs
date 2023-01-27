@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using Sirenix.OdinInspector;
+using Random = UnityEngine.Random;
 
 
 public class WeaponBase : MonoBehaviour
@@ -67,6 +68,7 @@ public class WeaponBase : MonoBehaviour
 
     //武器物体
     public GameObject weaponRoot;
+    private Animator _anim;
 
     //枪口闪光，每一把枪械都会有，但是不一定会有弹道,但是近战武器没有枪火闪光,不引用即可
     //枪口闪光的位置
@@ -112,6 +114,8 @@ public class WeaponBase : MonoBehaviour
     //武器元素类型
     public WeaponElementType elementType;
 
+    //射击随机偏移量
+    private Vector3 shootOffset;
 
     //枪械是否开启显示
     public bool isWeaponActive;
@@ -123,7 +127,12 @@ public class WeaponBase : MonoBehaviour
     private void Awake()
     {
         intervalBetweenShots = 100 / hundredSecondsShootNumber;
-        Debug.Log(intervalBetweenShots);
+        _anim = GetComponentInChildren<Animator>();
+    }
+
+    private void Update()
+    {
+        shootOffset = new Vector3(Random.Range(-0.1f, 0.1f), Random.Range(-0.1f, 0.1f), 0);
     }
 
 
@@ -146,10 +155,12 @@ public class WeaponBase : MonoBehaviour
                 case WeaponType.Rifle:
                     if (RaycastTargetDistance() < 10)
                     {
+                        ShootAnim();
                         RaycastShoot();
                     }
                     else
                     {
+                        ShootAnim();
                         TrajectoryShoot();
                     }
 
@@ -163,14 +174,23 @@ public class WeaponBase : MonoBehaviour
                 case WeaponType.ShotGun:
                     break;
                 case WeaponType.Bow:
+                    if (RaycastTargetDistance() < 300)
+                    {
+                        shootOffset = new Vector3(Random.Range(-0.03f, 0.03f), Random.Range(-0.03f, 0.03f), 0);
+                        ShootAnim();
+                        RaycastShoot();
+                    }
+
                     break;
                 case WeaponType.Pistol:
                     if (RaycastTargetDistance() < 10)
                     {
+                        ShootAnim();
                         RaycastShoot();
                     }
                     else
                     {
+                        ShootAnim();
                         TrajectoryShoot();
                     }
 
@@ -179,7 +199,7 @@ public class WeaponBase : MonoBehaviour
                     throw new ArgumentOutOfRangeException();
             }
 
-            print("shoot");
+
             return true;
         }
 
@@ -211,7 +231,8 @@ public class WeaponBase : MonoBehaviour
                 foreach (var hit in checkHit)
                 {
                     //如果检测到的碰撞体信息的标签不为Player，且这个距离小于目前的最小碰撞成员的距离，就让这个成员变为最近的碰撞成员
-                    if (!hit.transform.CompareTag("Player") && hit.distance < closeCheckHit.distance)
+                    if (!hit.transform.CompareTag("Player") &&  !hit.transform.CompareTag("AttackArea")  &&
+                        hit.distance < closeCheckHit.distance)
                     {
                         closeCheckHit = hit;
                     }
@@ -247,26 +268,33 @@ public class WeaponBase : MonoBehaviour
                     distance = Mathf.Infinity
                 };
                 RaycastHit[] shootHit = Physics.RaycastAll(weaponShootCheckPoint.position,
-                    weaponShootCheckPoint.forward,
+                    weaponShootCheckPoint.forward + shootOffset,
                     maxRaycastDistance, -1,
                     QueryTriggerInteraction.Ignore);
                 //在这个函数之前已经检测过一次，是否有碰撞体，所以这里不用判空，直接遍历所有成员信息
-                foreach (var hit in shootHit)
+                if (shootHit != null)
                 {
-                    //如果检测到的碰撞体信息的标签不为Player，且这个距离小于目前的最小碰撞成员的距离，就让这个成员变为最近的碰撞成员
-                    if (!hit.transform.CompareTag("Player") && hit.distance < closeShootHit.distance)
+                    foreach (var hit in shootHit)
                     {
-                        closeShootHit = hit;
+                        //如果检测到的碰撞体信息的标签不为Player，且这个距离小于目前的最小碰撞成员的距离，就让这个成员变为最近的碰撞成员
+                        if (!hit.transform.CompareTag("Player") && !hit.transform.CompareTag("AttackArea") &&
+                            hit.distance < closeShootHit.distance)
+                        {
+                            closeShootHit = hit;
+                        }
                     }
+
+                    OnRaySphereHit(closeShootHit.point, closeShootHit.normal);
                 }
 
-                OnRaySphereHit(closeShootHit.point, closeShootHit.normal);
                 break;
             }
             case FireType.TripleFire:
                 StartCoroutine(RayTripleFireTimeInterval());
                 break;
         }
+
+        lastShotTime = Time.time;
     }
 
     /// <summary>
@@ -287,8 +315,6 @@ public class WeaponBase : MonoBehaviour
                 Destroy(impactVFXInstance, rayImpactVFXAndBulletHoleLifeTime);
             }
         }
-
-        print("Ray!Hit!");
     }
 
     /// <summary>
@@ -305,7 +331,8 @@ public class WeaponBase : MonoBehaviour
                 if (projectilePrefab != null)
                 {
                     Vector3 shotDirection = weaponMuzzle.forward;
-                    ProjectileBaseThomos newProjectile = Instantiate(projectilePrefab, projectilePosition.position,
+                    ProjectileBaseThomos newProjectile = Instantiate(projectilePrefab,
+                        projectilePosition.position,
                         projectilePosition.rotation, projectilePosition.transform);
                     newProjectile.Shoot(this);
                 }
@@ -353,7 +380,8 @@ public class WeaponBase : MonoBehaviour
         {
             MuzzleFlashPlay();
 
-            Physics.SphereCast(weaponShootCheckPoint.position, rayProjectileRadius, Vector3.forward, out var hit,
+            Physics.SphereCast(weaponShootCheckPoint.position, rayProjectileRadius, weaponShootCheckPoint.forward,
+                out var hit,
                 maxRaycastDistance, -1,
                 QueryTriggerInteraction.Ignore);
             OnRaySphereHit(hit.point, hit.normal);
@@ -385,5 +413,10 @@ public class WeaponBase : MonoBehaviour
                 weaponMuzzle.rotation, weaponMuzzle.transform);
             Destroy(muzzleFlashInstance, 2f);
         }
+    }
+
+    private void ShootAnim()
+    {
+        _anim.SetTrigger("Shoot");
     }
 }
